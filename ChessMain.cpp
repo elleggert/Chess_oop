@@ -11,6 +11,27 @@ int main() {
 	cout << "========================\n\n";
 
 	ChessBoard cb;
+
+
+	//MY OWN TESTS - DELETE LATE
+
+	cb.submitMove("!5", "D6");
+	cout << '\n';
+
+	cb.submitMove("J7", "D6");
+	cout << '\n';
+
+	cb.submitMove("D7", "D9");
+	cout << '\n';
+
+	cb.submitMove("D7", "D6j");
+	cout << '\n';
+
+	cb.submitMove("D7", "D0");
+	cout << '\n';
+
+	//==========================
+	
 	cout << '\n';
 
 	cb.submitMove("D7", "D6");
@@ -29,6 +50,7 @@ int main() {
 	cout << "Alekhine vs. Vasic (1931)\n";
 	cout << "=========================\n\n";
 
+	/*
 	cb.resetBoard();
 	cout << '\n';
 
@@ -75,5 +97,6 @@ int main() {
 	cb.submitMove("D3", "G6");
 	cout << '\n';
 
+	*/
 	return 0;
 }
