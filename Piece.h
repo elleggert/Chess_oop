@@ -15,8 +15,9 @@ class Piece {
 
 
 public:
-  Piece(Type type, Colour colour) //
-    : type(type) , colour(colour){}
+  Piece(Type type, Colour colour);
+
+  Colour getColour();
 };
 
 #endif

@@ -50,10 +50,11 @@ int main() {
 	cout << "Alekhine vs. Vasic (1931)\n";
 	cout << "=========================\n\n";
 
-	/*
+	
 	cb.resetBoard();
 	cout << '\n';
 
+	/*+
 	cb.submitMove("E2", "E4");
 	cb.submitMove("E7", "E6");
 	cout << '\n';

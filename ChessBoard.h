@@ -6,10 +6,15 @@
 #include<string>
 #include<iostream>
 #include "Piece.h"
-
+#include "King.h"
+#include "Queen.h"
+#include "Rook.h"
+#include "Knight.h"
+#include "Bishop.h"
+#include "Pawn.h" 
 
 class ChessBoard {
-  map <string, Piece*> board;
+  std::map <std::string, Piece*> board;
   Colour next_move = WHITE;
   bool game_over = false;
 
@@ -24,6 +29,17 @@ class ChessBoard {
 
   void initialiseBoard();
 
+  void clearBoard();
+
+  void resetBoard();
+
+  bool isEmpty(const std:: string square);
+
+  bool ownPiece(const std::string square);
+
+  Colour getNextMove();
+
+  std::string stringColour(Colour colour);
 };
 
 
