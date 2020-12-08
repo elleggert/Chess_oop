@@ -9,7 +9,7 @@ class Pawn : public Piece {
  public:
   Pawn(Colour colour);
 
-
+  void print();
 
 
 };

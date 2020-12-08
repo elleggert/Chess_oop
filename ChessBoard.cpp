@@ -50,7 +50,11 @@ void ChessBoard::submitMove(const char* source, const char* dest){
     cout << stringColour(board[from]->getColour()) 
 	 << " cannot move a piece to " << to <<". Field is occupied by a piece of the same colour."
 	 << endl;
-  }  
+  }
+
+  for (auto it = board.begin() ; it != board.end() ; it++)
+    board[it->first]->print();
+  
    return;
 }
 
@@ -152,6 +156,27 @@ string ChessBoard::stringColour(Colour colour){
   if (colour == WHITE)
     return "White";
   return "Black";
+}
+
+string ChessBoard::stringPiece(Type type){
+  switch (type){
+  case 1: return "King"; 
+  case 2: return "Queen";
+  case 3: return "Rook";
+  case 4: return "Bishop";
+  case 5: return "Knight";
+  case 6: return "Pawn";
+  default: return "Piece";
+  }
+}
+
+void ChessBoard::changeTurn(){
+  if (next_move == WHITE){
+    next_move = BLACK;
+    return;
+  }
+  next_move = WHITE;
+  return;
 }
 
    

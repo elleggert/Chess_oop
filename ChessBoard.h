@@ -20,6 +20,8 @@ class ChessBoard {
 
  public:
   ChessBoard();
+
+  //DO NOT FORGET TO CHANGE THAT I'M PASSING ALL THE STRINGS AS REFERENCE AND NOT AS VALUE
   
   void submitMove(const char* source, const char* dest);
 
@@ -39,7 +41,12 @@ class ChessBoard {
 
   Colour getNextMove();
 
+  void changeTurn();
+
   std::string stringColour(Colour colour);
+
+  std::string stringPiece(Type type);
+  
 };
 
 
