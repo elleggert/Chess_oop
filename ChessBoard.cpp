@@ -49,19 +49,37 @@ void ChessBoard::submitMove(const char* source, const char* dest){
 
   if (!isEmpty(to) && board[to]->getColour() == board[from]->getColour()){
     //if (castlingPossible)
-    cout << stringColour(board[from]->getColour()) 
-	 << " cannot move a piece to " << to <<". Field is occupied by a piece of the same colour."
-	 << endl;
   }
 
   vector<string> legal_targets = board[from]->getLegalTargets(from, board);
   if (find(legal_targets.begin(), legal_targets.end(), to) == legal_targets.end()){
-    cout << "This was not a legal move" << endl;
+    cout << stringColour(board[from]->getColour()) << "'s " 
+	 << stringPiece(board[from]->getType()) << " cannot move to " << to <<"!" << endl;
     return;
   }
+
+  cout << stringColour(board[from]->getColour()) << "'s "
+       << stringPiece(board[from]->getType()) << "moves from "
+       << from << " to " << to;
+  if (!isEmpty(to)){
+    cout << "taking " << stringColour(board[to]->getColour()) << "'s "
+	 << stringPiece(board[to]->getType()) << endl;
+    delete board[to];
+  }
+    
+  board[to] = board[from];
   
       //for (auto it = board.begin() ; it != board.end() ; it++)
       // board[it->first]->print();
+
+    // CHECK WHETHER BOARD IS IN CHECK
+    //IF YES CHECK FOR CHECKMATE
+    //IsCheckmate --> GO throug ALL PIECES AND SEE WHETHER ANY HAS A MOVE LEFT
+    //IS STALEMATE -->
+  //DO NOT FORGET TO SWITCH PLAYERS
+  //DO NOT FORGET TO UPDATE THE MOVE COUNT IF THE PIECE I MOVE WAS KING; ROOK OR PAWN
+  //WRITE PAWN AND KNIGHT
+  //WRITE A VIRTUAL DESTRUCTOR FOR PIECE AND DESTRUCTORS FOR ALL PIECES
   
    return;
 }

@@ -15,7 +15,7 @@ std::vector<std::string> Bishop::getLegalTargets(std::string const& from, std::m
       //Checking whether a given square is blocked by a piece of the same colour
       if (board.count(target) && board[target]->getColour() == board[source]->getColour())
 	continue;
-      //Checking whether a given square is diagonal to my source
+      //Checking whether a given square is diagonal to the source
       if (!isDiagonal(source, target))
 	continue;
       //If the target is not adjacent, checking whether the path is free between source and target
