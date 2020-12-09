@@ -1,5 +1,7 @@
 #include "ChessBoard.h"
-#include<cctype>
+#include <cctype>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -52,15 +54,21 @@ void ChessBoard::submitMove(const char* source, const char* dest){
 	 << endl;
   }
 
-  for (auto it = board.begin() ; it != board.end() ; it++)
-    board[it->first]->print();
+  vector<string> legal_targets = board[from]->getLegalTargets(from, board);
+  if (find(legal_targets.begin(), legal_targets.end(), to) == legal_targets.end()){
+    cout << "This was not a legal move" << endl;
+    return;
+  }
+  
+      //for (auto it = board.begin() ; it != board.end() ; it++)
+      // board[it->first]->print();
   
    return;
 }
 
 
 
-bool ChessBoard::correctFormat(const string square){
+bool ChessBoard::correctFormat(const string& square){
   if (!isalpha(square[0]) || !isdigit(square[1]) || square.length() != 2){
     cout << "Input has the wrong format. " //
 	 << "File: Uppercase Letter A-H. " //
@@ -70,7 +78,7 @@ bool ChessBoard::correctFormat(const string square){
   return true;
 }
   
-bool ChessBoard::onBoard(const string square){
+bool ChessBoard::onBoard(const string& square){
   if (square[0] < 'A' || square[0] > 'H' || square[1] < '1' || square[1] > '8')
     return false;
   return true;
@@ -133,7 +141,7 @@ void ChessBoard::resetBoard(){
 }
 
 
-bool ChessBoard::isEmpty(const string square){
+bool ChessBoard::isEmpty(const string& square){
   map<string, Piece*>::iterator it;
   it = board.find(square);
   if (it == board.end())
@@ -141,7 +149,7 @@ bool ChessBoard::isEmpty(const string square){
   return false;
  }
 
- bool ChessBoard::ownPiece(const string square){
+ bool ChessBoard::ownPiece(const string& square){
    map<string, Piece*>::iterator it;
    it = board.find(square);
    if (it->second->getColour() == next_move)

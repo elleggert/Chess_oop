@@ -2,6 +2,7 @@
 #define PAWN_H
 
 #include "Piece.h"
+#include <iostream>
 
 class Pawn : public Piece {
   int move_count = 0;
@@ -9,7 +10,7 @@ class Pawn : public Piece {
  public:
   Pawn(Colour colour);
 
-  void print();
+  std::vector<std::string> getLegalTargets(std::string const& from, std::map<std::string, Piece*> & board);
 
 
 };

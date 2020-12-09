@@ -25,9 +25,9 @@ class ChessBoard {
   
   void submitMove(const char* source, const char* dest);
 
-  bool correctFormat(const std::string square);
+  bool correctFormat(const std::string& square);
   
-  bool onBoard(const std::string square);
+  bool onBoard(const std::string& square);
 
   void initialiseBoard();
 
@@ -35,9 +35,9 @@ class ChessBoard {
 
   void resetBoard();
 
-  bool isEmpty(const std:: string square);
+  bool isEmpty(const std:: string& square);
 
-  bool ownPiece(const std::string square);
+  bool ownPiece(const std::string& square);
 
   Colour getNextMove();
 

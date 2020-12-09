@@ -43,6 +43,18 @@ int main() {
 	cb.submitMove("D2", "D4");
 	cout << '\n';
 
+	//MY OWN ADDITION -> MOVING BISHOP
+	
+	cb.submitMove("F1", "B5");
+	cout << '\n';
+
+	cb.submitMove("F1", "B4");
+	cout << '\n';
+
+	cb.submitMove("F1", "E2");
+	cout << '\n';
+
+	//=========================
 	cb.submitMove("F8", "B4");
 	cout << '\n';
 
