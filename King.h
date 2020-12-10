@@ -2,6 +2,7 @@
 #define KING_H
 
 #include "Piece.h"
+#include "ChessBoard.h"
 #include <iostream> //FOR DEBUGGING
 
 class King : public Piece {
@@ -10,9 +11,10 @@ class King : public Piece {
  public:
   King(Colour colour);
 
-  std::vector<std::string> getLegalTargets(std::string const& from, std::map<std::string, Piece*> & board);
+  std::vector<std::string> getLegalTargets(std::string const& from, ChessBoard & board);
 
-
+  void addMove();
+  int getMoveCount();
 };
 
 #endif

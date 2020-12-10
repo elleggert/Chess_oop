@@ -12,26 +12,6 @@ int main() {
 
 	ChessBoard cb;
 
-
-	//MY OWN TESTS - DELETE LATE
-
-	cb.submitMove("!5", "D6");
-	cout << '\n';
-
-	cb.submitMove("J7", "D6");
-	cout << '\n';
-
-	cb.submitMove("D7", "D9");
-	cout << '\n';
-
-	cb.submitMove("D7", "D6j");
-	cout << '\n';
-
-	cb.submitMove("D7", "D0");
-	cout << '\n';
-
-	//==========================
-	
 	cout << '\n';
 
 	cb.submitMove("D7", "D6");
@@ -43,18 +23,6 @@ int main() {
 	cb.submitMove("D2", "D4");
 	cout << '\n';
 
-	//MY OWN ADDITION -> MOVING BISHOP
-	
-	cb.submitMove("F1", "B5");
-	cout << '\n';
-
-	cb.submitMove("F1", "B4");
-	cout << '\n';
-
-	cb.submitMove("F1", "E2");
-	cout << '\n';
-
-	//=========================
 	cb.submitMove("F8", "B4");
 	cout << '\n';
 
@@ -66,7 +34,7 @@ int main() {
 	cb.resetBoard();
 	cout << '\n';
 
-	/*+
+	
 	cb.submitMove("E2", "E4");
 	cb.submitMove("E7", "E6");
 	cout << '\n';
@@ -110,6 +78,6 @@ int main() {
 	cb.submitMove("D3", "G6");
 	cout << '\n';
 
-	*/
+	
 	return 0;
 }

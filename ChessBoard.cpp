@@ -51,16 +51,17 @@ void ChessBoard::submitMove(const char* source, const char* dest){
     //if (castlingPossible)
   }
 
-  vector<string> legal_targets = board[from]->getLegalTargets(from, board);
+  vector<string> legal_targets = board[from]->getLegalTargets(from, *this);
   if (find(legal_targets.begin(), legal_targets.end(), to) == legal_targets.end()){
     cout << stringColour(board[from]->getColour()) << "'s " 
-	 << stringPiece(board[from]->getType()) << " cannot move to " << to <<"!" << endl;
+	 << stringPiece(board[from]->getType()) << " cannot move to " << to
+	 <<"!" << endl;
     return;
   }
 
   cout << stringColour(board[from]->getColour()) << "'s "
-       << stringPiece(board[from]->getType()) << "moves from "
-       << from << " to " << to;
+       << stringPiece(board[from]->getType()) << " moves from "
+       << from << " to " << to << endl;
   if (!isEmpty(to)){
     cout << "taking " << stringColour(board[to]->getColour()) << "'s "
 	 << stringPiece(board[to]->getType()) << endl;
@@ -68,16 +69,24 @@ void ChessBoard::submitMove(const char* source, const char* dest){
   }
     
   board[to] = board[from];
-  
-      //for (auto it = board.begin() ; it != board.end() ; it++)
-      // board[it->first]->print();
+  board.erase(from);
 
-    // CHECK WHETHER BOARD IS IN CHECK
-    //IF YES CHECK FOR CHECKMATE
-    //IsCheckmate --> GO throug ALL PIECES AND SEE WHETHER ANY HAS A MOVE LEFT
-    //IS STALEMATE -->
-  //DO NOT FORGET TO SWITCH PLAYERS
-  //DO NOT FORGET TO UPDATE THE MOVE COUNT IF THE PIECE I MOVE WAS KING; ROOK OR PAWN
+  if (board[to]->getType() == KING || board[to]->getType() == ROOK || board[to]->getType() == PAWN)
+    board[to]->addMove();
+
+  cout << "Changing Turn" << endl;
+  changeTurn();
+
+  cout << "Getting Legal Moves)" << endl;
+  if (!this->legalMovesLeft(getNextMove())){
+    switchGameState();
+    if (this->inCheck(getNextMove())){
+      cout << stringColour(getNextMove()) << " is in checkmate" << endl;
+      return;
+    }
+    cout << "Stalemate" << endl;
+  }
+
   //WRITE PAWN AND KNIGHT
   //WRITE A VIRTUAL DESTRUCTOR FOR PIECE AND DESTRUCTORS FOR ALL PIECES
   
@@ -205,7 +214,130 @@ void ChessBoard::changeTurn(){
   return;
 }
 
-   
+void ChessBoard::switchGameState(){game_over = true; }
+
+bool ChessBoard::isDiagonalFree(std::string const& from, std::string const& to){
+  int file_diff = from[0] - to[0], rank_diff = from[1] - to[1];
+  string big = to, small = from;
+  
+  if (file_diff == rank_diff){
+    if (file_diff > 0){
+      big = from;
+      small = to;
+    }
+    while (small != big){
+      small[0]++;
+      small[1]++;
+      if (!this->isEmpty(small))
+	return false;
+    }
+    return true;
+  }
+  if (file_diff > 0){
+    big = from;
+    small = to;
+  }
+  while (small != big){
+    small[0]++;
+    small[1]--;
+    if (!this->isEmpty(small))
+      return false;
+  }
+  return true;
+}
+    
+
+bool ChessBoard::isFileRankFree(std::string const& from, std::string const& to){
+  int file_diff = from[0] - to[0], rank_diff = from[1] - to[1];
+  string big = to, small = from;
+  
+  if (file_diff){
+      if (file_diff > 0){
+	big = from;
+	small = to;
+      }
+
+    while (small != big){
+      small[0]++;
+      if (!this->isEmpty(small))
+	return false;
+    }
+    return true;
+  }
+
+  if (rank_diff > 0){
+    big = from;
+    small = to;
+  }
+  while (small != big){
+    small[1]++;
+    if (!this->isEmpty(small))
+      return false;
+  }
+  return true;
+}
+
+bool ChessBoard::moveExposesKing(std::string const& from, std::string const& to){
+  bool check_status;
+  Piece* captured = nullptr;
+
+  if (!this->isEmpty(to))
+    captured = board[to];
+
+  board[to] = board[from];
+  board.erase(from);
+
+  check_status = this->inCheck(board[to]->getColour()); //TO BE WRITTEN
+
+  board[from] = board[to];
+
+  if (captured)
+    board[to] = captured;
+  else board.erase(to);
+
+  return check_status;
+}
+
+
+bool ChessBoard::inCheck(Colour colour){
+  string king = findPiece(KING, colour);
+  Colour attacker = BLACK;
+
+  if (colour == BLACK)
+    attacker = WHITE;
+  
+  for (auto it = board.begin() ; it != board.end() ; it++){
+    if (it->second->getColour() == attacker){
+      vector<string> vec = it->second->getLegalTargets(it->first, *this);
+      if (find(vec.begin(), vec.end(), king) != vec.end())
+	return true; //THE KINGS POSITION IS LEGAL FOR ONE PIECE OF THE OPPOSING TEAM -->KING IN CHECK
+    }
+  }
+  return false; //NO PIECE CAN ATTACK THE KING
+}
+
+
+bool ChessBoard::legalMovesLeft(Colour colour){
+  for (auto it = board.begin() ; it != board.end() ; it++){
+    if (it->second->getColour() == colour){
+      vector<string> vec = it->second->getLegalTargets(it->first, *this);
+      if (!vec.empty())
+	return true;
+    }
+  }
+  return false;
+}
+
+
+string ChessBoard::findPiece(Type type, Colour colour){
+  for (auto it = board.begin() ; it != board.end() ; it++){
+    if (it->second->getType() == type &&
+	it->second->getColour() == colour)
+      return it->first;
+  }
+  return "NO SUCH PIECE ON THE BOARD";
+}
+
 
   
   
