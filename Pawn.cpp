@@ -12,8 +12,6 @@ std::vector<std::string> Pawn::getLegalTargets(std::string const& from, ChessBoa
   std::vector<std::string> legal_positions;
   int one_step = 1, two_step = 2;
 
-  std::cout << "PAWN" << std::endl;
-
   if (this->getColour()){
     one_step = -1;
     two_step = -2;
@@ -30,22 +28,35 @@ std::vector<std::string> Pawn::getLegalTargets(std::string const& from, ChessBoa
       legal_positions.push_back(target);
   
   target[0] = target[0] + one_step;
-  if (board.onBoard(target) && !board.isEmpty(target) && !board.ownPiece(target)){
+  if (board.onBoard(target) && !board.isEmpty(target) && !board.sameColour(source, target)){
     legal_positions.push_back(target);
   }
   
   target[0] = target[0] - two_step;
-  if (board.onBoard(target) && !board.isEmpty(target) && !board.ownPiece(target)){
+  if (board.onBoard(target) && !board.isEmpty(target) && !board.sameColour(source, target)){
     legal_positions.push_back(target);
   }
 
   if (this->getColour() == board.getNextMove()) {
-    for (int i = 0 ; i < legal_positions.size(); i++){
+    if (!legal_positions.empty()){
+      for (int i =  legal_positions.size() - 1; i >= 0; i--){
       if (board.moveExposesKing(source, legal_positions[i]))
 	legal_positions.erase(legal_positions.begin() + i);
+      }
     }
   }
-
+  /*
+  if (this->getColour() == board.getNextMove()) {
+    auto it = legal_positions.begin();
+    while( it != legal_positions.end()){
+      if (board.moveExposesKing(source, *it))
+	it = legal_positions.erase(it);
+      else {
+	++it;
+      }
+    }
+  }
+    */
   return legal_positions;
 }
 

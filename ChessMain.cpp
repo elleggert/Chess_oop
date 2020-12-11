@@ -6,14 +6,14 @@ using std::cout;
 
 int main() {
 
-	cout << "========================\n";
+  	cout << "========================\n";
 	cout << "Testing the Chess Engine\n";
 	cout << "========================\n\n";
 
 	ChessBoard cb;
 
 	cout << '\n';
-
+	/*
 	cb.submitMove("D7", "D6");
 	cout << '\n';
 
@@ -34,7 +34,7 @@ int main() {
 	cb.resetBoard();
 	cout << '\n';
 
-	
+	*/
 	cb.submitMove("E2", "E4");
 	cb.submitMove("E7", "E6");
 	cout << '\n';

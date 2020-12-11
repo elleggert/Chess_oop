@@ -61,12 +61,14 @@ void ChessBoard::submitMove(const char* source, const char* dest){
 
   cout << stringColour(board[from]->getColour()) << "'s "
        << stringPiece(board[from]->getType()) << " moves from "
-       << from << " to " << to << endl;
+       << from << " to " << to;
   if (!isEmpty(to)){
-    cout << "taking " << stringColour(board[to]->getColour()) << "'s "
-	 << stringPiece(board[to]->getType()) << endl;
+    cout << " taking " << stringColour(board[to]->getColour()) << "'s "
+	 << stringPiece(board[to]->getType());
     delete board[to];
   }
+  cout << endl;
+
     
   board[to] = board[from];
   board.erase(from);
@@ -74,10 +76,8 @@ void ChessBoard::submitMove(const char* source, const char* dest){
   if (board[to]->getType() == KING || board[to]->getType() == ROOK || board[to]->getType() == PAWN)
     board[to]->addMove();
 
-  cout << "Changing Turn" << endl;
-  changeTurn();
+  changeTurn();      
 
-  cout << "Getting Legal Moves)" << endl;
   if (!this->legalMovesLeft(getNextMove())){
     switchGameState();
     if (this->inCheck(getNextMove())){
@@ -85,11 +85,16 @@ void ChessBoard::submitMove(const char* source, const char* dest){
       return;
     }
     cout << "Stalemate" << endl;
+    return;
   }
 
-  //WRITE PAWN AND KNIGHT
+  if (this->inCheck(getNextMove()))
+    cout << stringColour(getNextMove()) << " is in check" << endl;
+     
+
+  //CHECK HOW TO MAKE SURE THE ITERATOR CONTINUES UNTIL THE LAST ELEMENT WITHOUT DEPENDING ON THE RESIZING
   //WRITE A VIRTUAL DESTRUCTOR FOR PIECE AND DESTRUCTORS FOR ALL PIECES
-  
+  //Write CASTLING
    return;
 }
 
@@ -142,11 +147,11 @@ void ChessBoard::initialiseBoard(){
   board["G8"] = new Knight(BLACK);
   board["H8"] = new Rook(BLACK);
   
-  //FOR DEBUGGING PURPOSES
+  /*
   for (auto it = board.begin() ; it != board.end() ; it++){
     auto ptr = it->second;
     cout << it->first << endl;
-  }
+    }*/
   
   cout << "A new chess game is started!" << endl;
 }
@@ -176,10 +181,8 @@ bool ChessBoard::isEmpty(const string& square){
   return false;
  }
 
- bool ChessBoard::ownPiece(const string& square){
-   map<string, Piece*>::iterator it;
-   it = board.find(square);
-   if (it->second->getColour() == next_move)
+bool ChessBoard::sameColour(const string& from, const string& to){
+   if (board[from]->getColour() == board[to]->getColour())
      return true;
    return false;
  }
@@ -225,11 +228,13 @@ bool ChessBoard::isDiagonalFree(std::string const& from, std::string const& to){
       big = from;
       small = to;
     }
+    small[0]++;
+    small[1]++;
     while (small != big){
-      small[0]++;
-      small[1]++;
       if (!this->isEmpty(small))
 	return false;
+      small[0]++;
+      small[1]++;
     }
     return true;
   }
@@ -237,11 +242,13 @@ bool ChessBoard::isDiagonalFree(std::string const& from, std::string const& to){
     big = from;
     small = to;
   }
+  small[0]++;
+  small[1]--;
   while (small != big){
-    small[0]++;
-    small[1]--;
     if (!this->isEmpty(small))
       return false;
+    small[0]++;
+    small[1]--;
   }
   return true;
 }
@@ -252,15 +259,16 @@ bool ChessBoard::isFileRankFree(std::string const& from, std::string const& to){
   string big = to, small = from;
   
   if (file_diff){
-      if (file_diff > 0){
-	big = from;
-	small = to;
-      }
+    if (file_diff > 0){
+      big = from;
+      small = to;
+    }
 
+    small[0]++;
     while (small != big){
-      small[0]++;
       if (!this->isEmpty(small))
 	return false;
+      small[0]++;
     }
     return true;
   }
@@ -269,10 +277,11 @@ bool ChessBoard::isFileRankFree(std::string const& from, std::string const& to){
     big = from;
     small = to;
   }
+  small[1]++;
   while (small != big){
-    small[1]++;
     if (!this->isEmpty(small))
       return false;
+    small[1]++;
   }
   return true;
 }
@@ -318,16 +327,32 @@ bool ChessBoard::inCheck(Colour colour){
 
 
 bool ChessBoard::legalMovesLeft(Colour colour){
-  for (auto it = board.begin() ; it != board.end() ; it++){
+  std::string target = "A1";
+
+  for ( ; target[0] <= 'H' ; ++target[0]){
+    for ( ; target[1] <= '8'; ++target[1]){
+      if (!isEmpty(target) && board[target]->getColour() == colour){
+	 vector<string> vec = board[target]->getLegalTargets(target, *this);
+	 if (vec.size())
+	   return true;
+      }
+    }
+    target[1] = '1';
+  }
+  return false;
+}
+
+/* 
+  for (auto it = board.begin() ; it != board.end() ; ++it){
     if (it->second->getColour() == colour){
       vector<string> vec = it->second->getLegalTargets(it->first, *this);
-      if (!vec.empty())
+      if (vec.size())
 	return true;
     }
   }
   return false;
 }
-
+*/
 
 string ChessBoard::findPiece(Type type, Colour colour){
   for (auto it = board.begin() ; it != board.end() ; it++){

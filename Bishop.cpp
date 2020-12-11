@@ -9,11 +9,10 @@ std::vector<std::string> Bishop::getLegalTargets(std::string const& from, ChessB
   std::string target = "A1", source = from;
   std::vector<std::string> legal_positions;
 
-  std::cout << "BISHOP" << std::endl;
   for ( ; target[0] <= 'H' ; ++target[0]){
     for ( ; target[1] <= '8'; ++target[1]){
       //Checking whether a given square is blocked by a piece of the same colour
-      if (!board.isEmpty(target) && board.ownPiece(target))
+      if (!board.isEmpty(target) && board.sameColour(source, target))
 	continue;
       //Checking whether a given square is diagonal to the source
       if (!isDiagonal(source, target))
@@ -26,12 +25,22 @@ std::vector<std::string> Bishop::getLegalTargets(std::string const& from, ChessB
     target[1] = '1';
   }
 
+   if (this->getColour() == board.getNextMove()) {
+    if (!legal_positions.empty()){
+      for (int i =  legal_positions.size() - 1; i >= 0; i--){
+      if (board.moveExposesKing(source, legal_positions[i]))
+	legal_positions.erase(legal_positions.begin() + i);
+      }
+    }
+  }
+   /*
   if (this->getColour() == board.getNextMove()) {
     for (int i = 0 ; i < legal_positions.size(); i++){
       if (board.moveExposesKing(source, legal_positions[i]))
 	legal_positions.erase(legal_positions.begin() + i);
-    }
+    }  
   }
+   */
 
   return legal_positions;
 }

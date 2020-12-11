@@ -37,7 +37,7 @@ class ChessBoard {
 
   bool isEmpty(const std:: string& square);
 
-  bool ownPiece(const std::string& square);
+  bool sameColour(const std::string& from, const std::string& to);
   
   Colour getNextMove();
   
