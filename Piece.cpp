@@ -34,8 +34,11 @@ bool Piece::isNextTo(std::string const& from, std::string const& to){
 }
 /*End of Function*/
 
-std::vector<std::string> Piece::getLegalTargets(std::string const& from, ChessBoard & board){}
+std::vector<std::string> Piece::getLegalTargets(std::string const& from, ChessBoard & board){ 
+  std::vector<std::string> vec;
+  return vec;
+}
 
 void Piece::addMove(){}
 
-int Piece::getMoveCount(){}
+int Piece::getMoveCount(){return 0;}
