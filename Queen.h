@@ -3,7 +3,6 @@
 
 #include "Piece.h"
 #include "ChessBoard.h"
-#include <iostream> //DEBUG
 
 class Queen : public Piece {
 

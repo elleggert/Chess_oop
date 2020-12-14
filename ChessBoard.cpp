@@ -5,60 +5,58 @@
 
 using namespace std;
 
-
 ChessBoard::ChessBoard() {initialiseBoard(); }
+
+ChessBoard::~ChessBoard() {clearBoard(); }
 
 
 void ChessBoard::submitMove(const char* source, const char* dest){
   string from = source;
   string to = dest;
 
+  //Test whether game is still is still unfinished
   if (game_over){
     cout << "The game has finished" << endl;
     return;
   }
 
-  if (!correctFormat(from) || !correctFormat(to))
+  //Test if inputs where given correctly i.e. on board, only two digits etc.
+  if(formatInvalid(from, to))
     return;
 
-  if (!onBoard(from)){
-    cout << "Source square is not on the board" << endl;
-    return;
-  }
-
-  if (!onBoard(to)){
-    cout << "Destination square is not on the board" << endl;
-    return;
-  }
-
-  if (from == to){
-    cout << "Invalid. Destination and Source square are equal. " << endl;
-    return;
-  }
-  
+  //Test for whether a square is taken
   if (isEmpty(from)){
     cout << "There is no piece at position " << from << "!" << endl;
     return;
   }
 
+  // Test for whether player whos turn it is has moved
   if (board[from]->getColour() != getNextMove()){
     cout << "It is not " << stringColour(board[from]->getColour())
 	 << "'s turn to move!" << endl;
     return;
   }
 
+  //Special case: Has Castling been called and is it currently legal?
+  //(Castling be called by moving king to the position of one of the rooks. 
   if (!isEmpty(to) && board[to]->getColour() == board[from]->getColour()){
-    //if (castlingPossible)
+    if (board[from]->getType() == KING && board[to]->getType() == ROOK){
+      castling(from, to);
+      return;
+    }
   }
 
-  vector<string> legal_targets = board[from]->getLegalTargets(from, *this);
-  if (find(legal_targets.begin(), legal_targets.end(), to) == legal_targets.end()){
+  //Getting all legal targets for the piece on the source quare
+  //If destination square not in the vector --> illegal move
+  vector<string> targets = board[from]->getLegalTargets(from, *this);
+  if (find(targets.begin(), targets.end(), to) == targets.end()){
     cout << stringColour(board[from]->getColour()) << "'s " 
 	 << stringPiece(board[from]->getType()) << " cannot move to " << to
 	 <<"!" << endl;
     return;
   }
-
+  
+  //Make the actual move if it is legal. Capture a piece if necessary*/
   cout << stringColour(board[from]->getColour()) << "'s "
        << stringPiece(board[from]->getType()) << " moves from "
        << from << " to " << to;
@@ -68,14 +66,17 @@ void ChessBoard::submitMove(const char* source, const char* dest){
     delete board[to];
   }
   cout << endl;
-
-    
+  
   board[to] = board[from];
   board.erase(from);
 
-  if (board[to]->getType() == KING || board[to]->getType() == ROOK || board[to]->getType() == PAWN)
+  //Update move count for certain pieces (needed for castling and pawn opening)
+  if (board[to]->getType() == KING ||
+      board[to]->getType() == ROOK ||
+      board[to]->getType() == PAWN)
     board[to]->addMove();
 
+  //Switch turns and test whether the game has reached a stalemate or checkmate
   changeTurn();      
 
   if (!this->legalMovesLeft(getNextMove())){
@@ -84,38 +85,24 @@ void ChessBoard::submitMove(const char* source, const char* dest){
       cout << stringColour(getNextMove()) << " is in checkmate" << endl;
       return;
     }
-    cout << "Stalemate" << endl;
+    cout << "The game has ended in a stalemate" << endl;
     return;
   }
 
+  //Inform a player that its king in check
   if (this->inCheck(getNextMove()))
     cout << stringColour(getNextMove()) << " is in check" << endl;
-     
-
-  //CHECK HOW TO MAKE SURE THE ITERATOR CONTINUES UNTIL THE LAST ELEMENT WITHOUT DEPENDING ON THE RESIZING
-  //WRITE A VIRTUAL DESTRUCTOR FOR PIECE AND DESTRUCTORS FOR ALL PIECES
-  //Write CASTLING
-   return;
+  return;
 }
+/* End of function*/
 
-
-
-bool ChessBoard::correctFormat(const string& square){
-  if (!isalpha(square[0]) || !isdigit(square[1]) || square.length() != 2){
-    cout << "Input has the wrong format. " //
-	 << "File: Uppercase Letter A-H. " //
-	 << "Rank: Digit 1-8." << endl;
-      return false;
-  }
-  return true;
+void ChessBoard::resetBoard(){
+  next_move = WHITE;
+  game_over = false;
+  clearBoard();
+  initialiseBoard();
 }
-  
-bool ChessBoard::onBoard(const string& square){
-  if (square[0] < 'A' || square[0] > 'H' || square[1] < '1' || square[1] > '8')
-    return false;
-  return true;
-}
-
+/* End of function*/
 
 void ChessBoard::initialiseBoard(){
   string square;
@@ -133,7 +120,6 @@ void ChessBoard::initialiseBoard(){
   board["G1"] = new Knight(WHITE);
   board["H1"] = new Rook(WHITE);
 
- 
   //BLACK
   for(square = "A7"; square[0] <= 'H'; ++square[0])
     board[square] = new Pawn(BLACK);
@@ -147,77 +133,16 @@ void ChessBoard::initialiseBoard(){
   board["G8"] = new Knight(BLACK);
   board["H8"] = new Rook(BLACK);
   
-  /*
-  for (auto it = board.begin() ; it != board.end() ; it++){
-    auto ptr = it->second;
-    cout << it->first << endl;
-    }*/
-  
   cout << "A new chess game is started!" << endl;
 }
-
- 
+/* End of function*/
   
 void ChessBoard::clearBoard(){
   for (auto it = board.begin() ; it != board.end() ; it++)
     delete it->second;
   board.clear();
 }
-
-
-void ChessBoard::resetBoard(){
-  next_move = WHITE;
-  game_over = false;
-  clearBoard();
-  initialiseBoard();
-}
-
-
-bool ChessBoard::isEmpty(const string& square){
-  map<string, Piece*>::iterator it;
-  it = board.find(square);
-  if (it == board.end())
-    return true;
-  return false;
- }
-
-bool ChessBoard::sameColour(const string& from, const string& to){
-   if (board[from]->getColour() == board[to]->getColour())
-     return true;
-   return false;
- }
-
- 
-Colour ChessBoard::getNextMove(){return next_move; }
-
-string ChessBoard::stringColour(Colour colour){
-  if (colour == WHITE)
-    return "White";
-  return "Black";
-}
-
-string ChessBoard::stringPiece(Type type){
-  switch (type){
-  case 1: return "King"; 
-  case 2: return "Queen";
-  case 3: return "Rook";
-  case 4: return "Bishop";
-  case 5: return "Knight";
-  case 6: return "Pawn";
-  default: return "Piece";
-  }
-}
-
-void ChessBoard::changeTurn(){
-  if (next_move == WHITE){
-    next_move = BLACK;
-    return;
-  }
-  next_move = WHITE;
-  return;
-}
-
-void ChessBoard::switchGameState(){game_over = true; }
+/* End of function*/
 
 bool ChessBoard::isDiagonalFree(std::string const& from, std::string const& to){
   int file_diff = from[0] - to[0], rank_diff = from[1] - to[1];
@@ -252,8 +177,8 @@ bool ChessBoard::isDiagonalFree(std::string const& from, std::string const& to){
   }
   return true;
 }
+/* End of function*/
     
-
 bool ChessBoard::isFileRankFree(std::string const& from, std::string const& to){
   int file_diff = from[0] - to[0], rank_diff = from[1] - to[1];
   string big = to, small = from;
@@ -285,19 +210,24 @@ bool ChessBoard::isFileRankFree(std::string const& from, std::string const& to){
   }
   return true;
 }
+/* End of function*/
 
 bool ChessBoard::moveExposesKing(std::string const& from, std::string const& to){
   bool check_status;
   Piece* captured = nullptr;
 
+  //Store current board information
   if (!this->isEmpty(to))
     captured = board[to];
 
+  //Simulate the move
   board[to] = board[from];
   board.erase(from);
 
-  check_status = this->inCheck(board[to]->getColour()); //TO BE WRITTEN
+  //See whether this leads to check
+  check_status = this->inCheck(board[to]->getColour()); 
 
+  //Revert changes
   board[from] = board[to];
 
   if (captured)
@@ -306,7 +236,7 @@ bool ChessBoard::moveExposesKing(std::string const& from, std::string const& to)
 
   return check_status;
 }
-
+/* End of function*/
 
 bool ChessBoard::inCheck(Colour colour){
   string king = findPiece(KING, colour);
@@ -319,12 +249,12 @@ bool ChessBoard::inCheck(Colour colour){
     if (it->second->getColour() == attacker){
       vector<string> vec = it->second->getLegalTargets(it->first, *this);
       if (find(vec.begin(), vec.end(), king) != vec.end())
-	return true; //THE KINGS POSITION IS LEGAL FOR ONE PIECE OF THE OPPOSING TEAM -->KING IN CHECK
+	return true; //If Kings position legal for one opposing piece -> check
     }
   }
-  return false; //NO PIECE CAN ATTACK THE KING
+  return false; //No piece can attack the king --> no check
 }
-
+/* End of function*/
 
 bool ChessBoard::legalMovesLeft(Colour colour){
   std::string target = "A1";
@@ -332,27 +262,187 @@ bool ChessBoard::legalMovesLeft(Colour colour){
   for ( ; target[0] <= 'H' ; ++target[0]){
     for ( ; target[1] <= '8'; ++target[1]){
       if (!isEmpty(target) && board[target]->getColour() == colour){
-	 vector<string> vec = board[target]->getLegalTargets(target, *this);
-	 if (vec.size())
+	 vector<string> targets = board[target]->getLegalTargets(target, *this);
+	 //True once one piece has a legal move (i.e. no check) left
+	 if (targets.size())
 	   return true;
       }
     }
     target[1] = '1';
   }
+  //False otherwise
   return false;
 }
+/* End of function*/
 
-/* 
-  for (auto it = board.begin() ; it != board.end() ; ++it){
-    if (it->second->getColour() == colour){
-      vector<string> vec = it->second->getLegalTargets(it->first, *this);
-      if (vec.size())
-	return true;
+void ChessBoard::castling(std::string const& from, std::string const& to){
+  string target = from;
+  
+  if (board[from]->getMoveCount() || board[to]->getMoveCount()){
+    cout << "Invalid: Castling only legal when either piece has not yet moved "
+	 << endl;
+    return;
+  }
+  
+  if (inCheck(board[from]->getColour())){
+    cout << "Invalid: Cannot castle when in check" << endl;
+    return;
+  }
+  
+  if (!isFileRankFree(from, to)){
+    cout << "Invalid: Cannot castle with pieces between King and Rook" << endl;
+    return;
+  }
+
+  //QUEENSIDE
+  if (to[0] < from[0]){
+    target[0] = target[0] - 1;
+    if (moveExposesKing(from, target)){
+      cout << "Invalid: Cannot castle through check" << endl;
+      return;
     }
+    
+    target[0] = target[0] - 1;
+    if (moveExposesKing(from, target)){
+      cout << "Invalid: Cannot castle into check" << endl;
+      return;
+    }
+    
+    board[from]->addMove();
+    board[to]-> addMove();
+    board[target] = board[from];
+    target[0] = target[0] + 1;
+    board[target] = board[to];
+    board.erase(from);
+    board.erase(to);
+    
+    cout << stringColour(board[target]->getColour())
+	 << " has completed queenside castling "<< endl;
+  }
+  
+  //KINGSIDE
+  if (to[0] > from[0]){
+    target[0] = target[0] + 1;
+    if (moveExposesKing(from, target)){
+      cout << "Invalid: Cannot castle through check" << endl;
+      return;
+    }
+    
+    target[0] = target[0] + 1;
+    if (moveExposesKing(from, target)){
+      cout << "Invalid: Cannot castle into check" << endl;
+      return;
+    }
+    
+    board[from]->addMove();
+    board[to]-> addMove();
+    board[target] = board[from];
+    target[0] = target[0] - 1;
+    board[target] = board[to];
+    board.erase(from);
+    board.erase(to);
+    
+    cout << stringColour(board[target]->getColour())
+	 << " has completed kingside castling "<< endl;
+  }
+  changeTurn();
+  
+  //Also need to check for checkmate, check and stalemate afterwards
+  //Castling will almost never result in checkmate, but theoretically possible
+  if (!this->legalMovesLeft(getNextMove())){
+    switchGameState();
+    if (this->inCheck(getNextMove())){
+      cout << stringColour(getNextMove()) << " is in checkmate" << endl;
+      return;
+    }
+    cout << "The game has ended in a stalemate" << endl;
+    return;
+  }
+  
+  if (this->inCheck(getNextMove()))
+    cout << stringColour(getNextMove()) << " is in check" << endl;
+  return;
+}
+/* End of function*/
+
+bool ChessBoard::formatInvalid(const string& from, const string& to){
+  if (!correctFormat(from) || !correctFormat(to))
+    return true;
+  
+  if (!onBoard(from)){
+    cout << "Source square is not on the board" << endl;
+    return true;
+  }
+
+  if (!onBoard(to)){
+    cout << "Destination square is not on the board" << endl;
+    return true;
+  }
+
+  if (from == to){
+    cout << "Invalid. Destination and Source square are equal. " << endl;
+    return true;
   }
   return false;
 }
-*/
+/* End of function*/
+
+
+bool ChessBoard::sameColour(const string& from, const string& to){
+   if (board[from]->getColour() == board[to]->getColour())
+     return true;
+   return false;
+ }
+/* End of function*/
+
+bool ChessBoard::onBoard(const string& square){
+  if (square[0] < 'A' || square[0] > 'H' || square[1] < '1' || square[1] > '8')
+    return false;
+  return true;
+}
+/* End of function*/
+
+bool ChessBoard::isEmpty(const string& square){
+  map<string, Piece*>::iterator it;
+  it = board.find(square);
+  if (it == board.end())
+    return true;
+  return false;
+ }
+/* End of function*/
+
+bool ChessBoard::correctFormat(const string& square){
+  if (!isalpha(square[0]) || !isdigit(square[1]) || square.length() != 2){
+    cout << "Input has the wrong format. " //
+	 << "File: Uppercase Letter A-H. " //
+	 << "Rank: Digit 1-8." << endl;
+      return false;
+  }
+  return true;
+}
+/* End of function*/
+
+string ChessBoard::stringColour(Colour colour){
+  if (colour == WHITE)
+    return "White";
+  return "Black";
+}
+/* End of function*/
+
+string ChessBoard::stringPiece(Type type){
+  switch (type){
+  case 1: return "King"; 
+  case 2: return "Queen";
+  case 3: return "Rook";
+  case 4: return "Bishop";
+  case 5: return "Knight";
+  case 6: return "Pawn";
+  default: return "Piece";
+  }
+}
+/* End of function*/
+
+Colour ChessBoard::getNextMove(){return next_move; }
 
 string ChessBoard::findPiece(Type type, Colour colour){
   for (auto it = board.begin() ; it != board.end() ; it++){
@@ -360,9 +450,21 @@ string ChessBoard::findPiece(Type type, Colour colour){
 	it->second->getColour() == colour)
       return it->first;
   }
-  return "NO SUCH PIECE ON THE BOARD";
+  cout << "No such piece on the board" << endl;
+  return "";
 }
+/* End of function*/
 
+void ChessBoard::changeTurn(){
+  if (next_move == WHITE){
+    next_move = BLACK;
+    return;
+  }
+  next_move = WHITE;
+  return;
+}
+/* End of function*/
 
-  
-  
+void ChessBoard::switchGameState(){game_over = true; }
+
+/* END OF FILE*/

@@ -17,7 +17,7 @@ std::vector<std::string> Knight::getLegalTargets(std::string const& from, ChessB
       //Checking whether a given square is on the same rank or file as the source
       if (isOnFileRank(source, target) || isDiagonal(source, target))
 	continue;
-      //Checking whether it is the closest possible piece
+      //Checking whether it is the closest possible square 
       if (abs(source[0] - target[0]) > 2 || abs(source[1] - target[1]) > 2)
 	continue;
       legal_positions.push_back(target);
@@ -25,23 +25,15 @@ std::vector<std::string> Knight::getLegalTargets(std::string const& from, ChessB
     target[1] = '1';
   }
 
- if (this->getColour() == board.getNextMove()) {
+
+  //Removing any destination square that would leave the king in check
+  if (this->getColour() == board.getNextMove()) {
     if (!legal_positions.empty()){
       for (int i =  legal_positions.size() - 1; i >= 0; i--){
-      if (board.moveExposesKing(source, legal_positions[i]))
-	legal_positions.erase(legal_positions.begin() + i);
+	if (board.moveExposesKing(source, legal_positions[i]))
+	  legal_positions.erase(legal_positions.begin() + i);
       }
     }
   }
- /*
-  if (this->getColour() == board.getNextMove()) {
-    for (int i = 0 ; i < legal_positions.size(); i++){
-      if (board.moveExposesKing(source, legal_positions[i]))
-	legal_positions.erase(legal_positions.begin() + i);
-    }
-  }
-
- */
-  
   return legal_positions;
 }

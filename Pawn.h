@@ -3,7 +3,6 @@
 
 #include "Piece.h"
 #include "ChessBoard.h"
-#include <iostream>
 
 class Pawn : public Piece {
   int move_count = 0;

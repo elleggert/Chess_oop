@@ -3,7 +3,6 @@
 
 #include "Piece.h"
 #include "ChessBoard.h"
-#include <iostream>
 
 class Knight : public Piece {
 
@@ -11,7 +10,6 @@ class Knight : public Piece {
   Knight(Colour colour);
 
  std::vector<std::string> getLegalTargets(std::string const& from, ChessBoard & board);
-
 
 };
 

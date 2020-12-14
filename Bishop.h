@@ -3,9 +3,6 @@
 
 #include "Piece.h"
 #include "ChessBoard.h"
-#include <string>
-#include <vector>
-#include <map>
 
 class Bishop : public Piece {
 

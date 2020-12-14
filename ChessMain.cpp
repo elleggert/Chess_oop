@@ -13,7 +13,7 @@ int main() {
 	ChessBoard cb;
 
 	cout << '\n';
-	/*
+	
 	cb.submitMove("D7", "D6");
 	cout << '\n';
 
@@ -34,7 +34,6 @@ int main() {
 	cb.resetBoard();
 	cout << '\n';
 
-	*/
 	cb.submitMove("E2", "E4");
 	cb.submitMove("E7", "E6");
 	cout << '\n';
@@ -77,7 +76,6 @@ int main() {
 
 	cb.submitMove("D3", "G6");
 	cout << '\n';
-
 	
 	return 0;
 }

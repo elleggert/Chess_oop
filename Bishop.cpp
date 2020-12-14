@@ -1,6 +1,4 @@
 #include "Bishop.h"
-#include <iostream> //DEBUG
-
 
 Bishop::Bishop(Colour colour) //
   : Piece(BISHOP, colour){}
@@ -17,31 +15,24 @@ std::vector<std::string> Bishop::getLegalTargets(std::string const& from, ChessB
       //Checking whether a given square is diagonal to the source
       if (!isDiagonal(source, target))
 	continue;
-      //If the target is not adjacent, checking whether the path is free between source and target
+      /*If the target is not adjacent, checking whether the path is free between
+	source and target*/
       if (!isNextTo(source, target) && !board.isDiagonalFree(source, target))
 	continue;
       legal_positions.push_back(target);
     }
     target[1] = '1';
   }
-
-   if (this->getColour() == board.getNextMove()) {
+  
+  //Removing any destination square that would leave the king in check
+  if (this->getColour() == board.getNextMove()) {
     if (!legal_positions.empty()){
       for (int i =  legal_positions.size() - 1; i >= 0; i--){
-      if (board.moveExposesKing(source, legal_positions[i]))
-	legal_positions.erase(legal_positions.begin() + i);
+	if (board.moveExposesKing(source, legal_positions[i]))
+	  legal_positions.erase(legal_positions.begin() + i);
       }
     }
   }
-   /*
-  if (this->getColour() == board.getNextMove()) {
-    for (int i = 0 ; i < legal_positions.size(); i++){
-      if (board.moveExposesKing(source, legal_positions[i]))
-	legal_positions.erase(legal_positions.begin() + i);
-    }  
-  }
-   */
-
   return legal_positions;
 }
 
