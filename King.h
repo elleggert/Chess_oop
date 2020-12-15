@@ -15,5 +15,4 @@ class King : public Piece {
   void addMove();
   int getMoveCount();
 };
-
 #endif

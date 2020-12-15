@@ -3,12 +3,12 @@
 King::King(Colour colour) //
   : Piece(KING, colour){}
 
-
 std::vector<std::string> King::getLegalTargets(std::string const& from, ChessBoard & board){
   std::string target = "A1", source = from;
   std::vector<std::string> legal_positions;
-
+  
   /*Iterating through the board*/
+  /* No named constants used to stay closer to chess notation --> legibility*/
   for ( ; target[0] <= 'H' ; ++target[0]){
     for ( ; target[1] <= '8'; ++target[1]){
       // Checking whether a given square is next to the current position of the king
@@ -37,3 +37,4 @@ std::vector<std::string> King::getLegalTargets(std::string const& from, ChessBoa
 void King::addMove(){move_count++; }
 
 int King::getMoveCount(){return move_count; }
+/*END OF FILE*/

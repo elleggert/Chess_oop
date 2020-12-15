@@ -7,6 +7,7 @@ std::vector<std::string> Bishop::getLegalTargets(std::string const& from, ChessB
   std::string target = "A1", source = from;
   std::vector<std::string> legal_positions;
 
+  /* No named constants used to stay closer to chess notation --> legibility*/
   for ( ; target[0] <= 'H' ; ++target[0]){
     for ( ; target[1] <= '8'; ++target[1]){
       //Checking whether a given square is blocked by a piece of the same colour
@@ -35,4 +36,4 @@ std::vector<std::string> Bishop::getLegalTargets(std::string const& from, ChessB
   }
   return legal_positions;
 }
-
+/*END OF FILE*/

@@ -8,6 +8,7 @@ std::vector<std::string> Queen::getLegalTargets(std::string const& from, ChessBo
   std::vector<std::string> legal_positions;
 
   //Iterating through the board
+  /* No named constants used to stay closer to chess notation --> legibility*/
   for ( ; target[0] <= 'H' ; ++target[0]){
     for ( ; target[1] <= '8'; ++target[1]){
       //Checking whether a given square is blocked by a piece of the same colour
@@ -42,3 +43,4 @@ std::vector<std::string> Queen::getLegalTargets(std::string const& from, ChessBo
   }
   return legal_positions;
 }
+/*END OF FILE*/

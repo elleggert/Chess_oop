@@ -5,7 +5,7 @@
 using namespace std;
 
 Piece::Piece(Type type, Colour colour) //
-    : type(type) , colour(colour){}
+  : type(type) , colour(colour){}
 
 Piece::~Piece(){}
 
@@ -42,3 +42,4 @@ std::vector<std::string> Piece::getLegalTargets(std::string const& from, ChessBo
 void Piece::addMove(){}
 
 int Piece::getMoveCount(){return 0;}
+/*END OF FILE*/

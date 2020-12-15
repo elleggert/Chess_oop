@@ -2,6 +2,7 @@
 #include <cctype>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -14,39 +15,39 @@ void ChessBoard::submitMove(const char* source, const char* dest){
   string from = source;
   string to = dest;
 
-  //Test whether game is still is still unfinished
+  //Test whether game is still unfinished
   if (game_over){
     cout << "The game has finished" << endl;
     return;
   }
 
-  //Test if inputs where given correctly i.e. on board, only two digits etc.
+  //Test if inputs were correctly specified i.e. on board, only two digits etc.
   if(formatInvalid(from, to))
     return;
-
-  //Test for whether a square is taken
+  
+  //Test for whether a square is taken by a piece
   if (isEmpty(from)){
     cout << "There is no piece at position " << from << "!" << endl;
     return;
   }
-
+  
   // Test for whether player whos turn it is has moved
   if (board[from]->getColour() != getNextMove()){
     cout << "It is not " << stringColour(board[from]->getColour())
 	 << "'s turn to move!" << endl;
     return;
   }
-
+  
   //Special case: Has Castling been called and is it currently legal?
-  //(Castling be called by moving king to the position of one of the rooks. 
+  //(Castling be called by moving the king to the position of one of the rooks. 
   if (!isEmpty(to) && board[to]->getColour() == board[from]->getColour()){
     if (board[from]->getType() == KING && board[to]->getType() == ROOK){
       castling(from, to);
       return;
     }
   }
-
-  //Getting all legal targets for the piece on the source quare
+  
+  //Getting all legal targets for the piece on the source square
   //If destination square not in the vector --> illegal move
   vector<string> targets = board[from]->getLegalTargets(from, *this);
   if (find(targets.begin(), targets.end(), to) == targets.end()){
@@ -69,14 +70,14 @@ void ChessBoard::submitMove(const char* source, const char* dest){
   
   board[to] = board[from];
   board.erase(from);
-
+  
   //Update move count for certain pieces (needed for castling and pawn opening)
   if (board[to]->getType() == KING ||
       board[to]->getType() == ROOK ||
       board[to]->getType() == PAWN)
     board[to]->addMove();
-
-  //Switch turns and test whether the game has reached a stalemate or checkmate
+  
+  //Switch turns and test whether the game has reached stalemate or checkmate
   changeTurn();      
 
   if (!this->legalMovesLeft(getNextMove())){
@@ -110,7 +111,7 @@ void ChessBoard::initialiseBoard(){
   //WHITE
   for(square = "A2"; square[0] <= 'H'; ++square[0])
     board[square] = new Pawn(WHITE);
-
+  
   board["A1"] = new Rook(WHITE);
   board["B1"] = new Knight(WHITE);
   board["C1"] = new Bishop(WHITE);
@@ -119,11 +120,11 @@ void ChessBoard::initialiseBoard(){
   board["F1"] = new Bishop(WHITE);
   board["G1"] = new Knight(WHITE);
   board["H1"] = new Rook(WHITE);
-
+  
   //BLACK
   for(square = "A7"; square[0] <= 'H'; ++square[0])
     board[square] = new Pawn(BLACK);
-
+  
   board["A8"] = new Rook(BLACK);
   board["B8"] = new Knight(BLACK);
   board["C8"] = new Bishop(BLACK);
@@ -136,7 +137,7 @@ void ChessBoard::initialiseBoard(){
   cout << "A new chess game is started!" << endl;
 }
 /* End of function*/
-  
+
 void ChessBoard::clearBoard(){
   for (auto it = board.begin() ; it != board.end() ; it++)
     delete it->second;
@@ -178,7 +179,7 @@ bool ChessBoard::isDiagonalFree(std::string const& from, std::string const& to){
   return true;
 }
 /* End of function*/
-    
+
 bool ChessBoard::isFileRankFree(std::string const& from, std::string const& to){
   int file_diff = from[0] - to[0], rank_diff = from[1] - to[1];
   string big = to, small = from;
@@ -188,7 +189,7 @@ bool ChessBoard::isFileRankFree(std::string const& from, std::string const& to){
       big = from;
       small = to;
     }
-
+    
     small[0]++;
     while (small != big){
       if (!this->isEmpty(small))
@@ -197,7 +198,7 @@ bool ChessBoard::isFileRankFree(std::string const& from, std::string const& to){
     }
     return true;
   }
-
+  
   if (rank_diff > 0){
     big = from;
     small = to;
@@ -215,25 +216,25 @@ bool ChessBoard::isFileRankFree(std::string const& from, std::string const& to){
 bool ChessBoard::moveExposesKing(std::string const& from, std::string const& to){
   bool check_status;
   Piece* captured = nullptr;
-
+  
   //Store current board information
   if (!this->isEmpty(to))
     captured = board[to];
-
+  
   //Simulate the move
   board[to] = board[from];
   board.erase(from);
-
+  
   //See whether this leads to check
   check_status = this->inCheck(board[to]->getColour()); 
-
+  
   //Revert changes
   board[from] = board[to];
-
+  
   if (captured)
     board[to] = captured;
   else board.erase(to);
-
+  
   return check_status;
 }
 /* End of function*/
@@ -241,7 +242,7 @@ bool ChessBoard::moveExposesKing(std::string const& from, std::string const& to)
 bool ChessBoard::inCheck(Colour colour){
   string king = findPiece(KING, colour);
   Colour attacker = BLACK;
-
+  
   if (colour == BLACK)
     attacker = WHITE;
   
@@ -259,13 +260,16 @@ bool ChessBoard::inCheck(Colour colour){
 bool ChessBoard::legalMovesLeft(Colour colour){
   std::string target = "A1";
 
+  /* For Chess, I deliberately chose to not use named constants for file/rank, 
+     since I found the code to be closer to chess notation and thus more legible*/
+  
   for ( ; target[0] <= 'H' ; ++target[0]){
     for ( ; target[1] <= '8'; ++target[1]){
       if (!isEmpty(target) && board[target]->getColour() == colour){
-	 vector<string> targets = board[target]->getLegalTargets(target, *this);
-	 //True once one piece has a legal move (i.e. no check) left
-	 if (targets.size())
-	   return true;
+	vector<string> targets = board[target]->getLegalTargets(target, *this);
+	//True once one piece has a legal move (i.e. no check) left
+	if (targets.size())
+	  return true;
       }
     }
     target[1] = '1';
@@ -293,16 +297,16 @@ void ChessBoard::castling(std::string const& from, std::string const& to){
     cout << "Invalid: Cannot castle with pieces between King and Rook" << endl;
     return;
   }
-
+  
   //QUEENSIDE
   if (to[0] < from[0]){
-    target[0] = target[0] - 1;
+    target[0]--;
     if (moveExposesKing(from, target)){
       cout << "Invalid: Cannot castle through check" << endl;
       return;
     }
     
-    target[0] = target[0] - 1;
+    target[0]--;
     if (moveExposesKing(from, target)){
       cout << "Invalid: Cannot castle into check" << endl;
       return;
@@ -311,7 +315,7 @@ void ChessBoard::castling(std::string const& from, std::string const& to){
     board[from]->addMove();
     board[to]-> addMove();
     board[target] = board[from];
-    target[0] = target[0] + 1;
+    target[0]++;
     board[target] = board[to];
     board.erase(from);
     board.erase(to);
@@ -322,13 +326,13 @@ void ChessBoard::castling(std::string const& from, std::string const& to){
   
   //KINGSIDE
   if (to[0] > from[0]){
-    target[0] = target[0] + 1;
+    target[0]++;
     if (moveExposesKing(from, target)){
       cout << "Invalid: Cannot castle through check" << endl;
       return;
     }
     
-    target[0] = target[0] + 1;
+    target[0]++;
     if (moveExposesKing(from, target)){
       cout << "Invalid: Cannot castle into check" << endl;
       return;
@@ -337,7 +341,7 @@ void ChessBoard::castling(std::string const& from, std::string const& to){
     board[from]->addMove();
     board[to]-> addMove();
     board[target] = board[from];
-    target[0] = target[0] - 1;
+    target[0]--;
     board[target] = board[to];
     board.erase(from);
     board.erase(to);
@@ -373,12 +377,12 @@ bool ChessBoard::formatInvalid(const string& from, const string& to){
     cout << "Source square is not on the board" << endl;
     return true;
   }
-
+  
   if (!onBoard(to)){
     cout << "Destination square is not on the board" << endl;
     return true;
   }
-
+  
   if (from == to){
     cout << "Invalid. Destination and Source square are equal. " << endl;
     return true;
@@ -389,10 +393,10 @@ bool ChessBoard::formatInvalid(const string& from, const string& to){
 
 
 bool ChessBoard::sameColour(const string& from, const string& to){
-   if (board[from]->getColour() == board[to]->getColour())
-     return true;
-   return false;
- }
+  if (board[from]->getColour() == board[to]->getColour())
+    return true;
+  return false;
+}
 /* End of function*/
 
 bool ChessBoard::onBoard(const string& square){
@@ -408,7 +412,7 @@ bool ChessBoard::isEmpty(const string& square){
   if (it == board.end())
     return true;
   return false;
- }
+}
 /* End of function*/
 
 bool ChessBoard::correctFormat(const string& square){
@@ -416,7 +420,7 @@ bool ChessBoard::correctFormat(const string& square){
     cout << "Input has the wrong format. " //
 	 << "File: Uppercase Letter A-H. " //
 	 << "Rank: Digit 1-8." << endl;
-      return false;
+    return false;
   }
   return true;
 }
