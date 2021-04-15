@@ -1,4 +1,4 @@
-An Object-Oriented C++ implementation of Chess. 
+An Object-Oriented C++ implementation of a Chess computer. 
 
 Begin a new game by creating a ChessBoard Instance. Moves can be executed by calling e.g. ChessBoard.submitMove("E2", "E4");
 
